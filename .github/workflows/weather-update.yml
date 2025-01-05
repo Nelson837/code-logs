@@ -40,18 +40,18 @@ jobs:
           CITY: "London"  # Set city to London
 
       # Check for changes in the weather log file
-      - name: Check for changes
+      - name: Check for changes in weather_log.txt
         run: |
-          git diff --exit-code || echo "Changes detected"
+          git diff --exit-code weather_log.txt || echo "Changes detected"
 
-      # Commit and push the changes
+      # Commit and push changes if weather_log.txt has been modified
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git remote set-url origin https://github.com/${{ github.repository }}.git
           git add weather_log.txt
-          git commit -m "Daily weather update for London on $(date +'%Y-%m-%d %H:%M:%S')"
+          git diff --exit-code weather_log.txt || git commit -m "Daily weather update for London on $(date +'%Y-%m-%d %H:%M:%S')"
           git push https://github.com/${{ github.repository }}.git HEAD:main --force
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Use the GitHub secret with the token
