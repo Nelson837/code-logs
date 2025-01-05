@@ -1,10 +1,10 @@
-name: Weather Update
+name: Daily Weather Update
 
 on:
   schedule:
     # Runs every day at midnight UTC
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # Every day at midnight UTC
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
   weather_update:
@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v2
 
       # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: '3.9'
 
       # Install required Python packages
       - name: Install dependencies
@@ -27,13 +27,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      # Create weather_log.txt if it doesn't exist
+      - name: Create weather_log.txt if not exists
+        run: touch weather_log.txt
+
       # Run the weather script
       - name: Run weather script
         run: |
           python weather_script.py
         env:
           API_KEY: ${{ secrets.OPENWEATHERMAP_API_KEY }}  # Use GitHub Secrets for API key
-          CITY: "Kuwait City"  # Replace with your city if needed
+          CITY: "London"  # Set city to London
+
+      # Check for changes in the weather log file
+      - name: Check for changes
+        run: |
+          git diff --exit-code || echo "Changes detected"
 
       # Commit and push the changes
       - name: Commit and push changes
@@ -41,6 +50,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add weather_log.txt
-          git commit -m "Weather log update: $(date +'%Y-%m-%d %H:%M:%S')"
-          git push
-
+          git commit -m "Daily weather update for London on $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin main  # Push changes to the main branch
