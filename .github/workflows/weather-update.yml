@@ -49,6 +49,9 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://github.com/${{ github.repository }}.git
           git add weather_log.txt
           git commit -m "Daily weather update for London on $(date +'%Y-%m-%d %H:%M:%S')"
-          git push origin main  # Push changes to the main branch
+          git push https://github.com/${{ github.repository }}.git HEAD:main --force
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Use the GitHub secret with the token
